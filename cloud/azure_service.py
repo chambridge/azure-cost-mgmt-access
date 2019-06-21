@@ -1,7 +1,8 @@
 from datetime import datetime
 from isodate import datetime_isoformat
 import os
-from azure.common.credentials import ServicePrincipalCredentials   
+from tempfile import NamedTemporaryFile
+from azure.common.credentials import ServicePrincipalCredentials
 from azure.mgmt.costmanagement import CostManagementClient
 from azure.mgmt.costmanagement.models import (
     Export,
@@ -22,6 +23,8 @@ from azure.mgmt.storage.models import (
     StorageAccountCreateParameters,
     StorageAccountUpdateParameters
 )
+from azure.storage import CloudStorageAccount
+from azure.storage.blob import BlockBlobService
 from msrestazure.azure_exceptions import CloudError
 
 
@@ -44,6 +47,10 @@ class AzureStorageAccountContainerNotFound(Exception):
    """Raised when Azure storage account container is not found."""
    pass
 
+
+class AzureCostReportNotFound(Exception):
+   """Raised when Azure cost report is not found."""
+   pass
 
 class AzureService:
     """A class to handle interactions with the Azure services."""
@@ -153,6 +160,74 @@ class AzureService:
                                            storage_account_name,
                                            container_name)
 
+    def _get_cloud_storage_account(self,
+                                   resource_group_name,
+                                   storage_account_name,
+                                   container_name):
+        """Get the cloud storage account object."""
+        storage_client = self._get_storage_client()
+        storage_account_keys = storage_client.storage_accounts.list_keys(
+            resource_group_name, storage_account_name)
+        # Add check for keys and a get value
+        key = storage_account_keys.keys[0]
+        return CloudStorageAccount(
+            storage_account_name, key.value)
+
+    def list_storage_account_container_blobs(self,
+                                             resource_group_name,
+                                             storage_account_name,
+                                             container_name):
+        """List the blobs in a storage account container."""
+        cloud_storage_account = self._get_cloud_storage_account(resource_group_name,
+                                                                storage_account_name,
+                                                                container_name)
+        blockblob_service = cloud_storage_account.create_block_blob_service()
+        return blockblob_service.list_blobs(container_name)
+
+    def get_latest_cost_export(self,
+                               resource_group_name,
+                               storage_account_name,
+                               container_name,
+                               export_name):
+        """Get the latest cost export file from given storage account container."""
+        latest_report = None
+        cloud_storage_account = self._get_cloud_storage_account(resource_group_name,
+                                                                storage_account_name,
+                                                                container_name)
+        blockblob_service = cloud_storage_account.create_block_blob_service()
+        blob_list = blockblob_service.list_blobs(container_name)
+        for blob in blob_list:
+            if blob.name.startswith(export_name) and not latest_report:
+                latest_report = blob
+            elif (blob.name.startswith(export_name) and
+                blob.properties.last_modified > latest_report.properties.last_modified):
+                latest_report = blob
+        if not latest_report:
+            message = f'No cost report with prefix {export_name} found in ' \
+            f'storage account {storage_account_name} with container {container_name}.'
+            raise AzureCostReportNotFound(message)
+        return latest_report
+
+    def download_latest_cost_export(self,
+                                    resource_group_name,
+                                    storage_account_name,
+                                    container_name,
+                                    export_name,
+                                    destination=None):
+        """Download the latest cost export file from a given storage container."""
+        cloud_storage_account = self._get_cloud_storage_account(resource_group_name,
+                                                                storage_account_name,
+                                                                container_name)
+        blockblob_service = cloud_storage_account.create_block_blob_service()
+        latest = self.get_latest_cost_export(
+            resource_group_name, storage_account_name, container_name, export_name)
+
+        file_path = destination
+        if not destination:
+            temp_file = NamedTemporaryFile(delete=False, suffix='.csv')
+            file_path = temp_file.name
+        blockblob_service.get_blob_to_path(container_name, latest.name, file_path)
+        return file_path
 
     def create_cost_management_export(self,
         export_name,

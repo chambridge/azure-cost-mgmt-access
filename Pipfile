@@ -7,6 +7,8 @@ name = "pypi"
 azure = "*"
 azure-mgmt-costmanagement = "*"
 isodate = "*"
+azure-storage-blob = "*"
+azure-storage = "*"
 
 [dev-packages]
 
