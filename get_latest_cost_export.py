@@ -22,7 +22,7 @@ def main():
     
     with open(file_path) as csv_file:
         read_csv = csv.reader(csv_file, delimiter=',')
-        print('Print first 3 rows.')
+        print('First 3 rows.')
         row_count = 0
         for row in read_csv:
             print(row)

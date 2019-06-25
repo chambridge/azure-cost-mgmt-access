@@ -1,6 +1,7 @@
-from datetime import datetime
-from isodate import datetime_isoformat
 import os
+from datetime import datetime, timedelta
+from isodate import datetime_isoformat
+from dateutil.relativedelta import relativedelta
 from tempfile import NamedTemporaryFile
 from azure.common.credentials import ServicePrincipalCredentials
 from azure.mgmt.costmanagement import CostManagementClient
@@ -263,10 +264,13 @@ class AzureService:
         daily = QueryDataset(granularity='Daily')
         definition = QueryDefinition(timeframe='MonthToDate', dataset=daily)
         report_format = 'Csv'
-        today = datetime.today()
+        from_date = datetime.today() + timedelta(1)
+        to_date = datetime.today() + relativedelta(years=5)
         recurrence_period = ExportRecurrencePeriod(
-            from_property=datetime_isoformat(today))
+            from_property=datetime_isoformat(from_date),
+            to=datetime_isoformat(to_date))
         schedule = ExportSchedule(
+            status = 'Active',
             recurrence='Daily',
             recurrence_period=recurrence_period)
         parameters = Export(

@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "d24f76810327ce207c98f2aa7a300b9a56fbca49fd5c8249e8cf7904ea45b85c"
+            "sha256": "47c40154be01c311bd815a0f9f444ab00a590e6d5f99efb01fde6bf60632abf6"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -54,10 +54,10 @@
         },
         "azure-common": {
             "hashes": [
-                "sha256:c068d7379d6dc2f4093209cb7c3c1447e85d398374c628003aea9540d710ce4f",
-                "sha256:c8e4a7bf15f139f779a415d2d3c371738b1e9f5e14abd9c18af6b9bed3babf35"
+                "sha256:53b1195b8f20943ccc0e71a17849258f7781bc6db1c72edc7d6c055f79bd54e3",
+                "sha256:99ef36e74b6395329aada288764ce80504da16ecc8206cb9a72f55fb02e8b484"
             ],
-            "version": "==1.1.22"
+            "version": "==1.1.23"
         },
         "azure-cosmosdb-nspkg": {
             "hashes": [
@@ -710,10 +710,10 @@
         },
         "msrest": {
             "hashes": [
-                "sha256:05538c68251eb0c81bd2010524d8ff36d4266ec0669338fbdcecfd23c733231c",
-                "sha256:8143093308975f815f968b0d2a1ac8e26ba217eb6d03f3f27aac616aa3a25bd0"
+                "sha256:2c0909570913785a4408a17286e151f3b28d39277113e5c63378572f7395c660",
+                "sha256:c9e9cbb0c47745f9f5c82cce60849d7c3ec9e33fc6fad9e2987b7657ad1ba479"
             ],
-            "version": "==0.6.7"
+            "version": "==0.6.8"
         },
         "msrestazure": {
             "hashes": [
@@ -747,6 +747,7 @@
                 "sha256:7e6584c74aeed623791615e26efd690f29817a27c73085b78e4bad02493df2fb",
                 "sha256:c89805f6f4d64db21ed966fda138f8a5ed7a4fdbc1a8ee329ce1b74e3c74da9e"
             ],
+            "index": "pypi",
             "version": "==2.8.0"
         },
         "requests": {
